@@ -3,8 +3,8 @@
 #更改默认地址为192.168.6.1
 sed -i 's/192.168.1.1/172.16.1.1/g' package/base-files/files/bin/config_generate
 # Hostname
-sed -i 's/OpenWrt/CMccRAX3000M/g' package/base-files/files/bin/config_generate
-sed -i 's/ImmortalWrt/CMccRAX3000M/g' package/base-files/files/bin/config_generate
+sed -i 's/OpenWrt/CMCC-RAX3000M/g' package/base-files/files/bin/config_generate
+sed -i 's/ImmortalWrt/CMCC-RAX3000M/g' package/base-files/files/bin/config_generate
 ####### Modify the version number
 # sed -i '/DISTRIB_DESCRIPTION/d' package/base-files/files/etc/openwrt_release
 # echo "DISTRIB_DESCRIPTION='ImmortalWrt $('%V')'" >> package/base-files/files/etc/openwrt_release
