@@ -14,7 +14,7 @@ sed -i '/DISTRIB_DESCRIPTION/d' package/base-files/files/etc/openwrt_release
 echo "DISTRIB_DESCRIPTION='ImmortalWrt $('%V')'" >> package/base-files/files/etc/openwrt_release
 sed -i "s/ImmortalWrt /\洲\·\C\y \build $(TZ=UTC-8 date "+%Y.%m.%d") @ ImmortalWrt /g" package/base-files/files/etc/openwrt_release
 ###
-sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/arm/index.htm
+# sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/arm/index.htm
 
 # Enable AAAA
 sed -i 's/filter_aaaa	1/filter_aaaa	0/g' package/network/services/dnsmasq/files/dhcp.conf
@@ -58,7 +58,7 @@ sed -i 's/^\s*$[(]call\sEnsureVendoredVersion/#&/' feeds/packages/utils/dockerd/
 # containerd Has验证
 sed -i 's/PKG_HASH:=.*/PKG_HASH:=skip/g' feeds/packages/utils/containerd/Makefile
 
-sed -i '741a\
-                <tr><td width="33%">&#32534;&#35793;&#32773;&#58;&#32;&#27954;&#183;&#67;&#121;</td><td><a href="https://github.com/2286927/CMCC-RAX3000M-EMMC" style="color: black;" target="_blank">&#32534;&#35793;&#22320;&#22336;</a></td></tr>\
-                <tr><td width="33%">&#28304;&#30721;&#58;&#32;&#108;&#101;&#100;&#101;</td><td><a href="https://github.com/immortalwrt/immortalwrt" style="color: black;" target="_blank">&#28304;&#30721;&#38142;&#25509;</a></td></tr>
-' package/lean/autocore/files/arm/index.htm
+#sed -i '741a\
+#                <tr><td width="33%">&#32534;&#35793;&#32773;&#58;&#32;&#27954;&#183;&#67;&#121;</td><td><a href="https://github.com/2286927/CMCC-RAX3000M-EMMC" style="color: black;" target="_blank">&#32534;&#35793;&#22320;&#22336;</a></td></tr>\
+#                <tr><td width="33%">&#28304;&#30721;&#58;&#32;&#108;&#101;&#100;&#101;</td><td><a href="https://github.com/immortalwrt/immortalwrt" style="color: black;" target="_blank">&#28304;&#30721;&#38142;&#25509;</a></td></tr>
+#' package/lean/autocore/files/arm/index.htm
