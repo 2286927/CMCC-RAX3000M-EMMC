@@ -25,12 +25,12 @@ on:
     inputs:
       USE_NX30PRO_EEPROM:
         description: 'Use nx30pro eeprom'
-        required: true
+        required: false
         default: true
         type: boolean
       USE_52MHZ:
         description: 'Use 52MHz max-frequency'
-        required: true
+        required: false
         default: false
         type: boolean
 
