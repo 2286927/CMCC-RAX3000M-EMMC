@@ -219,5 +219,4 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          cat release.txt
+        bodyFile: "release.txt"
