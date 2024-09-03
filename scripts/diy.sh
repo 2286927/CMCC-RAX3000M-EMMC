@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #更改默认地址为192.168.6.1
-sed -i 's/192.168.1.1/172.16.1.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/172.16.7.1/g' package/base-files/files/bin/config_generate
 # Hostname
 sed -i 's/OpenWrt/CMCC-RAX3000M/g' package/base-files/files/bin/config_generate
 sed -i 's/ImmortalWrt/CMCC-RAX3000M/g' package/base-files/files/bin/config_generate
