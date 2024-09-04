@@ -21,6 +21,7 @@ permissions: write-all
     #- cron: 0 4 4,17 * *
 
 on:
+  repository_dispatch:
   workflow_dispatch:
     inputs:
       USE_NX30PRO_EEPROM:
