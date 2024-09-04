@@ -23,7 +23,7 @@ on:
         default: 'false'
   push:
     branches:
-      - master
+      - main
     paths:
       - 'configs/rax3000m-emmc_mtksdk.config'
   #schedule:
