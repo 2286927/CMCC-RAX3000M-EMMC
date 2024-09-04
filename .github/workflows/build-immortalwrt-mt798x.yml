@@ -14,16 +14,17 @@ permissions: write-all
 # 开启写权限，防止无法上传到release
 
 on:
+  repository_dispatch:
   workflow_dispatch:
     inputs:
       USE_MTWIFI_CFG:
         description: 'Use mtwifi-cfg'
-        required: true
+        required: false
         default: true
         type: boolean
       USE_NX30PRO_EEPROM:
         description: 'Use nx30pro eeprom'
-        required: true
+        required: false
         default: true
         type: boolean
       USE_52MHZ:
