@@ -95,8 +95,8 @@ jobs:
         #git fetch https://github.com/padavanonly/immortalwrt-mt798x
         #git merge FETCH_HEAD
         ./scripts/feeds update -a && ./scripts/feeds install -a        
-        sed -i 's/\bfirewall4\b/firewall/g' feeds/small/luci-app-passwall2/Makefile
-        sed -i 's/\bfirewall4\b/firewall/g' feeds/small/nikki/Makefile
+        #sed -i 's/\bfirewall4\b/firewall/g' feeds/small/luci-app-passwall2/Makefile
+        #sed -i 's/\bfirewall4\b/firewall/g' feeds/small/nikki/Makefile
         #rm -rf feeds/small/luci-app-passwall2
         #rm -rf feeds/small/nikki
         chmod +x $GITHUB_WORKSPACE/$DIY_SH && $GITHUB_WORKSPACE/$DIY_SH
