@@ -255,4 +255,4 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        bodyFile: "release.txt"
+        bodyFile: padavanonly"release.txt"
