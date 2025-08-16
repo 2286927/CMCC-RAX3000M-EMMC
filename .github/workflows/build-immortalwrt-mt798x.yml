@@ -13,24 +13,24 @@ name: Build ImmortalWrt-mt798x
 permissions: write-all
 # 开启写权限，防止无法上传到release
 
-于:
+on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
       USE_MTWIFI_CFG:
         description: 'Use mtwifi-cfg'
         required: false
-        默认: true
+        default: true
         type: boolean
       USE_NX30PRO_EEPROM:
         description: 'Use nx30pro eeprom'
         required: false
-        默认: true
+        default: true
         type: boolean
       USE_52MHZ:
         description: 'Use 52MHz max-frequency'
         required: true
-        默认: false
+        default: false
         type: boolean
 
 env:
@@ -240,4 +240,6 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        bodyFile: openwrt-21.02"release.txt"
+        bodyFile: 
+          openwrt-21.02
+          "release.txt"
