@@ -42,13 +42,18 @@ sed -i 's/services/system/g' feeds/luci/applications/luci-app-cpufreq/luasrc/con
 ## git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
 git clone https://github.com/kenzok8/small.git package/small
-#rm -rf package/openwrt-packages/luci-app-adguardhome
-rm -rf package/openwrt-packages/adguardhome
+# 移除有问题的包
+#rm -rf package/openwrt-packages/luci-app-adguardhome || true
+#rm -rf package/openwrt-packages/adguardhome
 rm -rf package/openwrt-packages/luci-app-ddns-go
 rm -rf package/openwrt-packages/ddns-go
 rm -rf feeds/packages/net/adguardhome
 rm -rf feeds/luci/luci-app-aliyundrive-webdav
 rm -rf feeds/packages/aliyundrive-webdav
+rm -rf package/small/luci-app-fchomo || true
+rm -rf package/small/luci-app-homeproxy || true
+rm -rf package/small/momo || true
+rm -rf package/small/nikki || true
 
 #git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 #git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
