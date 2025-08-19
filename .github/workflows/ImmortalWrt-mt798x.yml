@@ -255,4 +255,4 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        bodyFile: padavanonly"release.txt"
+        bodyFile: openwrt-23.05-padavanonly"release.txt"
