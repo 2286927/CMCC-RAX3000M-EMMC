@@ -1,0 +1,233 @@
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
+
+name: deepseek_yaml
+
+permissions: write-all
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      USE_MTWIFI_CFG:
+        description: 'Use mtwifi-cfg'
+        required: false
+        default: true
+        type: boolean
+      USE_NX30PRO_EEPROM:
+        description: 'Use nx30pro eeprom'
+        required: false
+        default: true
+        type: boolean
+      USE_52MHZ:
+        description: 'Use 52MHz max-frequency'
+        required: true
+        default: false
+        type: boolean
+
+env:
+  REPO_URL: https://github.com/immortalwrt-mt798x/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+  FREE_DISK_SH: scripts/free_disk_space.sh
+  ENV_SH: scripts/environment.sh
+  DIY_SH: scripts/diy.sh
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: false
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180  # 设置超时时间，防止无限等待
+
+    steps:
+    - name: 检查
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive  # 递归克隆子模块
+
+    - name: 初始化环境
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        echo "USE_MTWIFI_CFG=${{ github.event.inputs.USE_MTWIFI_CFG }}" >> $GITHUB_ENV
+        echo "USE_NX30PRO_EEPROM=${{ github.event.inputs.USE_NX30PRO_EEPROM }}" >> $GITHUB_ENV
+        echo "USE_52MHZ=${{ github.event.inputs.USE_52MHZ }}" >> $GITHUB_ENV
+        chmod +x $FREE_DISK_SH && $FREE_DISK_SH
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update -y
+        sudo -E apt-get -qq full-upgrade -y
+        chmod +x $ENV_SH && $ENV_SH
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: 检查空间使用情况
+      if: (!cancelled())
+      run: df -hT
+
+    - name: 克隆源码
+      working-directory: /workdir
+      run: |
+        git clone --depth=1 --single-branch -b $REPO_BRANCH $REPO_URL openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: 开启缓存
+      uses: klever1988/cachewrtbuild@main
+      with:
+        ccache: 'true'
+        mixkey: 'openwrt21-cortexa53-${{ github.run_id }}'  # 使用唯一标识避免缓存冲突
+        prefix: ${{ github.workspace }}/openwrt
+
+    - name: 更新 & 安装 feeds & 修复依赖
+      run: |
+        cd openwrt
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        
+        # 更新feeds
+        ./scripts/feeds update -a
+        
+        # 修复依赖问题 - 将firewall4和nftables依赖转换为21.02兼容版本
+        if [ -f "feeds/small/luci-app-fchomo/Makefile" ]; then
+          sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/luci-app-fchomo/Makefile
+        fi
+        
+        if [ -f "feeds/small/luci-app-homeproxy/Makefile" ]; then
+          sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/luci-app-homeproxy/Makefile
+        fi
+        
+        if [ -f "feeds/small/nikki/Makefile" ]; then
+          sed -i 's/firewall4/firewall/g; s/kmod-nft-socket/kmod-ipt-socket/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/nikki/Makefile
+        fi
+        
+        # 安装feeds
+        ./scripts/feeds install -a
+        
+        # 执行自定义脚本
+        chmod +x $GITHUB_WORKSPACE/$DIY_SH && $GITHUB_WORKSPACE/$DIY_SH
+
+    - name: 导入补丁和配置
+      run: |
+        [ -e files ] && mv files openwrt/files
+        cat configs/rax3000m-emmc_mtksdk.config >> openwrt/.config
+
+    - name: 设置无线控制界面样式
+      if: env.USE_MTWIFI_CFG == 'true'
+      run: |
+        sed -i '/CONFIG_PACKAGE_luci-app-mtk=y/{N;N;N;s/CONFIG_PACKAGE_luci-app-mtk=y\nCONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y\nCONFIG_PACKAGE_wifi-profile=y\nCONFIG_WIFI_NORMAL_SETTING=y/CONFIG_PACKAGE_lua-cjson=y\nCONFIG_PACKAGE_luci-app-mtwifi-cfg=y\nCONFIG_PACKAGE_luci-i18n-mtwifi-cfg-zh-cn=y\nCONFIG_PACKAGE_mtwifi-cfg=y/}' openwrt/.config
+
+    - name: 设置是否使用 nx30pro eeprom
+      if: env.USE_NX30PRO_EEPROM == 'true'
+      run: |
+        mkdir -p openwrt/target/linux/mediatek/mt7981/base-files/lib/firmware
+        cp eeprom/nx30pro_eeprom.bin openwrt/target/linux/mediatek/mt7981/base-files/lib/firmware/MT7981_iPAiLNA_EEPROM.bin
+        sed -i 's/caldata_extract_mmc/# caldata_extract_mmc/' openwrt/target/linux/mediatek/mt7981/base-files/lib/preinit/90_extract_caldata
+        sed -i 's#./files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin##' openwrt/package/mtk/drivers/mt_wifi/Makefile
+
+    - name: 设置 dts 闪存频率
+      if: env.USE_52MHZ == 'true'
+      run: |
+        sed -i -e '/bus-width = <8>;/ a\	cap-mmc-highspeed;' openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m-emmc.dts
+        sed -i 's/26000000/52000000/g' openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m-emmc.dts
+        grep max-frequency openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m-emmc.dts
+
+    - name: 下载文件
+      run: |
+        cd openwrt
+        make defconfig
+        # 并行下载，使用更快的镜像源
+        make -j$(nproc) download || make -j$(($(nproc)/2)) download || make -j1 download V=s
+        
+        # 清理无效的小文件
+        find dl -size -1024c -delete
+
+    - name: 编译固件
+      id: compile
+      run: |
+        cd openwrt
+        # 使用所有可用核心编译，但留一个核心给系统
+        echo "使用 $(($(nproc)-1)) 个核心进行编译"
+        make -j$(($(nproc)-1)) || make -j$(($(nproc)/2)) || make -j1 V=s
+        
+        echo "status=success" >> $GITHUB_OUTPUT
+        echo "FILE_DATE=$(date +"%Y-%m-%d %H%M")" >> $GITHUB_ENV
+        echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
+        echo "TAG_DATE=$(date +"%m%d-%H%M%S")" >> $GITHUB_ENV
+
+    - name: 空间使用情况
+      if: (!cancelled())
+      run: df -hT
+
+    - name: 上传 bin 目录
+      uses: actions/upload-artifact@v4
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: openwrt/bin
+
+    - name: 整理文件
+      id: organize
+      if: steps.compile.outputs.status == 'success'
+      run: |
+        cd openwrt/bin/targets/*/*
+        # 只保留必要的固件文件
+        rm -rf *.buildinfo *.json *.manifest packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: 上传固件目录
+      uses: actions/upload-artifact@v4
+      if: env.UPLOAD_FIRMWARE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
+
+    - name: 生成发布标签
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
+      run: |
+        echo -e "### immortalwrt-21.02-mt7981-cmcc_rax3000m-emmc" >> release.txt
+        wlan_luci_interface=""
+        if grep -q 'CONFIG_PACKAGE_mtwifi-cfg=y' openwrt/.config; then
+          echo "- 使用 OpenWrt 原生无线控制界面" >> release.txt
+          wlan_luci_interface="mtwifi-cfg"
+        else
+          echo "- 使用 MTK SDK 无线控制界面" >> release.txt
+          wlan_luci_interface="luci-app-mtk"
+        fi
+        eeprom_status=""
+        if [ -e openwrt/target/linux/mediatek/mt7981/base-files/lib/firmware/MT7981_iPAiLNA_EEPROM.bin ] ; then
+          echo "- eeprom 使用 H3C NX30 Pro 提取版本" >> release.txt
+          eeprom_status="nx30pro_eeprom"
+        else
+          echo "- eeprom 未修改" >> release.txt
+          eeprom_status="default_eeprom"
+        fi
+        max_frequency=$(($(grep -oP "max-frequency = <\K[0-9]*" openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m-emmc.dts) / 1000000))
+        echo "- 使用闪存频率: ${max_frequency}MHz" >> release.txt
+        release_tag=$(date +"%Y.%m.%d-mt7981-cmcc_rax3000m-emmc-${wlan_luci_interface}-${eeprom_status}-${max_frequency}MHz")
+        echo "release_tag=${release_tag}" >> $GITHUB_OUTPUT
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Upload OpenWrt Firmware to Release
+      uses: ncipollo/release-action@v1
+      with:
+        name: CMCC-RAX3000M-EMMC-deepseek_yaml ${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: CMCC-RAX3000M-EMMC-deepseek_yaml${{ env.FILE_NAME }}
+        artifacts: ${{ env.FIRMWARE }}/*
+        allowUpdates: true
+        removeArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+         $(cat release.txt)
+      
+         openwrt-21.02
