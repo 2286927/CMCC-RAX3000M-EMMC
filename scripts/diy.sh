@@ -54,6 +54,18 @@ rm -rf package/small/luci-app-fchomo || true
 rm -rf package/small/luci-app-homeproxy || true
 rm -rf package/small/momo || true
 rm -rf package/small/nikki || true
+# 修改 luci-app-fchomo 依赖
+sed -i 's/firewall4/firewall/g' package/feeds/small/luci-app-fchomo/Makefile
+sed -i 's/kmod-nft-tproxy/kmod-ipt-tproxy/g' package/feeds/small/luci-app-fchomo/Makefile
+
+# 修改 luci-app-homeproxy 依赖
+sed -i 's/firewall4/firewall/g' package/feeds/small/luci-app-homeproxy/Makefile
+sed -i 's/kmod-nft-tproxy/kmod-ipt-tproxy/g' package/feeds/small/luci-app-homeproxy/Makefile
+
+# 修改 nikki 依赖
+sed -i 's/firewall4/firewall/g' package/feeds/small/nikki/Makefile
+sed -i 's/kmod-nft-socket/kmod-ipt-socket/g' package/feeds/small/nikki/Makefile
+sed -i 's/kmod-nft-tproxy/kmod-ipt-tproxy/g' package/feeds/small/nikki/Makefile
 
 #git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 #git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
