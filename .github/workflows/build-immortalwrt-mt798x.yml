@@ -240,6 +240,9 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        bodyFile: 
-          openwrt-21.02
-          "release.txt"
+        body: |
+         $(cat release.txt)
+      
+         openwrt-21.02
+        #bodyFile: 
+          #"release.txt"
