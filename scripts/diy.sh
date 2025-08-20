@@ -91,6 +91,34 @@ echo "=== Starting DIY script ==="
 
 cd openwrt
 
+# 修复依赖问题 - 将firewall4和nftables依赖转换为21.02兼容版本
+echo "=== 修复依赖问题 - 转换为21.02兼容版本 ==="
+
+# 修复 feeds/small 中的依赖问题
+if [ -f "feeds/small/luci-app-fchomo/Makefile" ]; then
+    echo "修复 luci-app-fchomo 依赖"
+    sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/luci-app-fchomo/Makefile
+fi
+
+if [ -f "feeds/small/luci-app-homeproxy/Makefile" ]; then
+    echo "修复 luci-app-homeproxy 依赖"
+    sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/luci-app-homeproxy/Makefile
+fi
+
+if [ -f "feeds/small/nikki/Makefile" ]; then
+    echo "修复 nikki 依赖"
+    sed -i 's/firewall4/firewall/g; s/kmod-nft-socket/kmod-ipt-socket/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/nikki/Makefile
+fi
+
+# 修复 kenzo 源中的依赖问题（如果有）
+if [ -d "feeds/kenzo" ]; then
+    echo "检查 kenzo 源中的依赖问题"
+    find feeds/kenzo -name "Makefile" -exec grep -l "firewall4\|kmod-nft-" {} \; | while read file; do
+        echo "修复 $file"
+        sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g; s/kmod-nft-socket/kmod-ipt-socket/g' "$file"
+    done
+fi
+
 # 修复 EEPROM 文件冲突 (使用 kmod-mt_wifi 的 EEPROM)
 echo "=== 修复 EEPROM 文件冲突 ==="
 
@@ -178,6 +206,9 @@ fi
 
 # 验证修复
 echo "=== 验证修复 ==="
+echo "依赖修复检查:"
+find feeds/small -name "Makefile" -exec grep -l "firewall\|kmod-ipt-" {} \; | head -5
+
 echo "kmod-mt_wifi Makefile 内容:"
 grep -n "install\|EEPROM\|firmware" package/mtk/drivers/mt_wifi/Makefile || true
 
