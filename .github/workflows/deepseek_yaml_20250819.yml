@@ -96,19 +96,6 @@ jobs:
         # 更新feeds
         ./scripts/feeds update -a
         
-        # 修复依赖问题 - 将firewall4和nftables依赖转换为21.02兼容版本
-        if [ -f "feeds/small/luci-app-fchomo/Makefile" ]; then
-          sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/luci-app-fchomo/Makefile
-        fi
-        
-        if [ -f "feeds/small/luci-app-homeproxy/Makefile" ]; then
-          sed -i 's/firewall4/firewall/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/luci-app-homeproxy/Makefile
-        fi
-        
-        if [ -f "feeds/small/nikki/Makefile" ]; then
-          sed -i 's/firewall4/firewall/g; s/kmod-nft-socket/kmod-ipt-socket/g; s/kmod-nft-tproxy/kmod-ipt-tproxy/g' feeds/small/nikki/Makefile
-        fi
-        
         # 安装feeds
         ./scripts/feeds install -a
         
