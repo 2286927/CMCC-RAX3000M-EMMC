@@ -96,11 +96,14 @@ jobs:
         # 更新feeds
         ./scripts/feeds update -a
         
+        # 执行预修复（feeds安装前）
+        chmod +x $GITHUB_WORKSPACE/$DIY_SH && $GITHUB_WORKSPACE/$DIY_SH pre-feeds
+        
         # 安装feeds
         ./scripts/feeds install -a
         
-        # 执行自定义脚本
-        chmod +x $GITHUB_WORKSPACE/$DIY_SH && $GITHUB_WORKSPACE/$DIY_SH
+        # 执行后修复（feeds安装后）
+        chmod +x $GITHUB_WORKSPACE/$DIY_SH && $GITHUB_WORKSPACE/$DIY_SH post-feeds
 
     - name: 导入补丁和配置
       run: |
