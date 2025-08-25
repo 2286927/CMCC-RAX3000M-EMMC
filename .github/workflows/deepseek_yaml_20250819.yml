@@ -145,6 +145,16 @@ jobs:
       run: |
         cd openwrt
         echo "使用 $(($(nproc)-1)) 个核心进行编译"
+        
+        # 尝试编译，如果失败则使用更少核心
+        if ! make -j$(($(nproc)-1)); then
+            echo "❌ 编译失败，尝试使用 $(($(nproc)/2)) 个核心..."
+            if ! make -j$(($(nproc)/2)); then
+                echo "❌ 仍然失败，使用单核心详细模式..."
+                make -j1 V=s
+            fi
+        fi
+        
         # 只显示错误和警告
         make -j$(($(nproc)-1)) 2>&1 | grep -E '(error|warning|Error|Warning)' || true
         
