@@ -45,6 +45,8 @@ env:
   UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  # 添加版本信息变量
+  FIRMWARE_VERSION: immortalwrt-21.02-mt7981-cmcc_rax3000m-emmc
 
 jobs:
   build:
@@ -180,7 +182,13 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
       run: |
-        echo -e "### immortalwrt-21.02-mt7981-cmcc_rax3000m-emmc" >> release.txt
+        # 动态生成版本信息
+        BRANCH_NAME="${{ env.REPO_BRANCH }}"
+        FIRMWARE_VERSION="immortalwrt-${BRANCH_NAME}-mt7981-cmcc_rax3000m-emmc"
+        
+        echo -e "### ${FIRMWARE_VERSION}" >> release.txt
+        echo "FIRMWARE_VERSION=${FIRMWARE_VERSION}" >> $GITHUB_ENV
+        
         wlan_luci_interface=""
         if grep -q 'CONFIG_PACKAGE_mtwifi-cfg=y' openwrt/.config; then
           echo "- 使用 OpenWrt 原生无线控制界面" >> release.txt
@@ -240,9 +248,9 @@ jobs:
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-         $(cat release.txt)
+        #body: |
+        # $(cat release.txt)
       
-         openwrt-21.02
-        #bodyFile: 
-          #"release.txt"
+        # openwrt-21.02
+        bodyFile:  |
+          "release.txt"
