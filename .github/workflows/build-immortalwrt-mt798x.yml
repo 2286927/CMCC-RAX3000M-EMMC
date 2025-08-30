@@ -34,8 +34,8 @@ on:
         type: boolean
 
 env:
-  #REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
-  REPO_URL: https://github.com/immortalwrt-mt798x/immortalwrt-mt798x
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  #REPO_URL: https://github.com/immortalwrt-mt798x/immortalwrt-mt798x
   REPO_BRANCH: openwrt-21.02
   FREE_DISK_SH: scripts/free_disk_space.sh
   ENV_SH: scripts/environment.sh
