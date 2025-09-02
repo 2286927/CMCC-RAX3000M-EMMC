@@ -252,5 +252,4 @@ jobs:
         # $(cat release.txt)
       
         # openwrt-21.02
-        bodyFile:  |
-          "release.txt"
+        bodyFile: "release.txt"
