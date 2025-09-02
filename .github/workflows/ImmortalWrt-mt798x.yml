@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: ImmortalWrt-mt798x
+name: ImmortalWrt-23.05-mt798x
 
 permissions: write-all
 # 开启写权限，防止无法上传到release
@@ -249,8 +249,8 @@ jobs:
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
       with:
-        name: ImmortalWrt-mt7981 ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: ImmortalWrt-mt7981${{ env.FILE_NAME }}
+        name: ImmortalWrt-23.05-mt7981 ${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: ImmortalWrt-23.05-mt7981${{ env.FILE_NAME }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
