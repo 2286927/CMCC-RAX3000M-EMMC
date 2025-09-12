@@ -242,8 +242,8 @@ jobs:
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
       with:
-        name: CMCC-RAX3000M-EMMC-21.02-mt7981 ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: CMCC-RAX3000M-EMMC-21.02-mt7981${{ env.FILE_NAME }}
+        name: CMCC-RAX3000M-EMMC-21.02-mt7981-hanwckf ${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: CMCC-RAX3000M-EMMC-21.02-mt7981-hanwckf${{ env.FILE_NAME }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
