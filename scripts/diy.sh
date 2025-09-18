@@ -51,7 +51,7 @@ rm -rf feeds/packages/net/adguardhome
 rm -rf feeds/luci/luci-app-aliyundrive-webdav
 rm -rf feeds/packages/aliyundrive-webdav
 rm -rf feeds/small/luci-app-passwall2
-
+rm -rf package/small/luci-app-passwall2
 #rm -rf package/small/luci-app-fchomo || true
 #rm -rf package/small/luci-app-homeproxy || true
 #rm -rf package/small/momo || true
