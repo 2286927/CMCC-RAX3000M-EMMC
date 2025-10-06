@@ -34,7 +34,16 @@ wget -qO- $GEOIP_URL > files/etc/openclash/GeoIP.dat
 wget -qO- $GEOSITE_URL > files/etc/openclash/GeoSite.dat
 
 # Country.mmdb
-COUNTRY_LITE_URL=https://raw.githubusercontent.com/alecthw/mmdb_china_ip_list/release/lite/Country.mmdb
-# COUNTRY_FULL_URL=https://raw.githubusercontent.com/alecthw/mmdb_china_ip_list/release/Country.mmdb
-wget -qO- $COUNTRY_LITE_URL > files/etc/openclash/Country.mmdb
-# wget -qO- $COUNTRY_FULL_URL > files/etc/openclash/Country.mmdb
+# COUNTRY_LITE_URL=https://github.com/alecthw/mmdb_china_ip_list/releases/download/202508110312/Country-lite.mmdb
+COUNTRY_FULL_URL=https://github.com/alecthw/mmdb_china_ip_list/releases/download/202508110312/Country.mmdb
+#wget -qO- $COUNTRY_LITE_URL > files/etc/openclash/Country.mmdb
+wget -qO- $COUNTRY_FULL_URL > files/etc/openclash/Country.mmdb
+
+
+#添加OpenClash dev版内核
+#curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-arm64.tar.gz -o /tmp/clash.tar.gz
+#tar zxvf /tmp/clash.tar.gz -C /tmp >/dev/null 2>&1
+#chmod +x /tmp/clash >/dev/null 2>&1
+#mkdir -p feeds/luci/applications/luci-app-openclash/root/etc/openclash/core
+#mv /tmp/clash feeds/luci/applications/luci-app-openclash/root/etc/openclash/core/clash >/dev/null 2>&1
+#rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
